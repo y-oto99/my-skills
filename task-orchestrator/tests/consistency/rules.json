@@ -1,0 +1,194 @@
+{
+  "schema": "task-orchestrator-conditional-rules/v1",
+  "provenance": "Manual, source-linked interpretation of the 2026-11-22 task-orchestrator Skill and references. NOT a verified equivalence to the source prose.",
+  "dimensions": {
+    "source_access": [
+      "available",
+      "unavailable"
+    ],
+    "prior_job_outcome": [
+      "known",
+      "unknown"
+    ],
+    "action_risk": [
+      "routine_reversible",
+      "significant"
+    ],
+    "human_decision": [
+      "needed",
+      "not_needed"
+    ],
+    "evidence": [
+      "verified",
+      "unverified"
+    ],
+    "authoritative_artifact": [
+      "available",
+      "absent"
+    ],
+    "tool_capability": [
+      "available",
+      "unavailable"
+    ],
+    "write_scope": [
+      "appropriate",
+      "inappropriate"
+    ]
+  },
+  "rules": [
+    {
+      "id": "R01",
+      "source": "SKILL.md#core-invariants",
+      "quote": "Do not require GitHub, local files, a database, a UI, or even another agent.",
+      "when": {},
+      "action": "require_specific_storage",
+      "modality": "forbid"
+    },
+    {
+      "id": "R02",
+      "source": "SKILL.md#core-invariants",
+      "quote": "Reconcile with authoritative sources before acting on potentially stale claims.",
+      "when": {
+        "source_access": "available"
+      },
+      "action": "reconcile_before_status_action",
+      "modality": "require"
+    },
+    {
+      "id": "R03",
+      "source": "SKILL.md#core-invariants",
+      "quote": "If inaccessible, say \"unverified\"; never silently invent a current state.",
+      "when": {
+        "source_access": "unavailable"
+      },
+      "action": "label_unverified",
+      "modality": "require"
+    },
+    {
+      "id": "R04",
+      "source": "SKILL.md#core-invariants",
+      "quote": "Persist only information that would otherwise be lost and is needed to resume",
+      "when": {},
+      "action": "duplicate_live_status_by_default",
+      "modality": "forbid"
+    },
+    {
+      "id": "R05",
+      "source": "SKILL.md#core-invariants",
+      "quote": "Let a worker decide ordinary reversible implementation details and try bounded recovery.",
+      "when": {
+        "action_risk": "routine_reversible"
+      },
+      "action": "require_intermediate_approval",
+      "modality": "forbid"
+    },
+    {
+      "id": "R06",
+      "source": "SKILL.md#core-invariants",
+      "quote": "Escalate material goal changes, permissions, privacy/security implications, irreversible or high-cost actions",
+      "when": {
+        "action_risk": "significant"
+      },
+      "action": "escalate_material_decision",
+      "modality": "require"
+    },
+    {
+      "id": "R07",
+      "source": "SKILL.md#operational-loop",
+      "quote": "Don't trigger duplicate external execution when its previous outcome is unknown.",
+      "when": {
+        "prior_job_outcome": "unknown"
+      },
+      "action": "relaunch_job",
+      "modality": "forbid"
+    },
+    {
+      "id": "R08",
+      "source": "SKILL.md#restart-and-handoff",
+      "quote": "workers need not write to a central supervisor store when their authoritative artifacts already provide sufficient evidence.",
+      "when": {
+        "authoritative_artifact": "available"
+      },
+      "action": "require_central_worker_report",
+      "modality": "forbid"
+    },
+    {
+      "id": "R09",
+      "source": "SKILL.md#restart-and-handoff",
+      "quote": "For off-platform or ephemeral work, request the smallest feasible handoff artifact at the point of work",
+      "when": {
+        "authoritative_artifact": "absent"
+      },
+      "action": "request_minimal_handoff",
+      "modality": "require"
+    },
+    {
+      "id": "R10",
+      "source": "SKILL.md#restart-and-handoff",
+      "quote": "No background monitoring, wakeups, or automatic resumption without a real supported scheduler / event trigger and worker-control interface.",
+      "when": {
+        "tool_capability": "unavailable"
+      },
+      "action": "claim_background_monitoring",
+      "modality": "forbid"
+    },
+    {
+      "id": "R11",
+      "source": "SKILL.md#boundaries-and-security",
+      "quote": "Default to read-only discovery and small reversible changes; obtain authorization for significant writes",
+      "when": {
+        "action_risk": "significant"
+      },
+      "action": "write_without_authorization",
+      "modality": "forbid"
+    },
+    {
+      "id": "R12",
+      "source": "SKILL.md#core-invariants",
+      "quote": "write only to explicitly appropriate destinations",
+      "when": {
+        "write_scope": "inappropriate"
+      },
+      "action": "write_to_destination",
+      "modality": "forbid"
+    },
+    {
+      "id": "R13",
+      "source": "references/state.md#reconciliation-on-resume",
+      "quote": "If access fails, report stale/unverified, not current.",
+      "when": {
+        "source_access": "unavailable"
+      },
+      "action": "claim_current_status_from_cache",
+      "modality": "forbid"
+    },
+    {
+      "id": "R14",
+      "source": "references/delegation.md#completion",
+      "quote": "Claimed complete: worker reports it has finished.",
+      "when": {
+        "evidence": "unverified"
+      },
+      "action": "mark_evidence_checked",
+      "modality": "forbid"
+    },
+    {
+      "id": "R15",
+      "source": "references/delegation.md#escalation-packet",
+      "quote": "Bundle related decisions.",
+      "when": {
+        "human_decision": "needed"
+      },
+      "action": "bundle_related_decisions",
+      "modality": "require"
+    },
+    {
+      "id": "R16",
+      "source": "references/state.md#concurrency-privacy-and-later-scaling",
+      "quote": "Do not mirror private contents into a public skill repository.",
+      "when": {},
+      "action": "mirror_private_to_public",
+      "modality": "forbid"
+    }
+  ]
+}
