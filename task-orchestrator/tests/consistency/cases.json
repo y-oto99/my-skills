@@ -1,0 +1,195 @@
+{
+  "schema": "task-orchestrator-consistency-cases/v1",
+  "description": "Static pairwise collision tests over manually normalized rules; synthetic added rules represent hypothetical regressions, not current Skill text.",
+  "cases": [
+    {
+      "id": "T01",
+      "title": "baseline: no collisions in extracted core",
+      "add": [],
+      "expect": []
+    },
+    {
+      "id": "T02",
+      "title": "regression: mandatory GitHub store",
+      "add": [
+        {
+          "id": "X02",
+          "when": {},
+          "action": "require_specific_storage",
+          "modality": "require"
+        }
+      ],
+      "expect": [
+        [
+          "R01",
+          "X02"
+        ]
+      ],
+      "witness": {}
+    },
+    {
+      "id": "T03",
+      "title": "regression: stale state silently treated as current",
+      "add": [
+        {
+          "id": "X03",
+          "when": {
+            "source_access": "unavailable"
+          },
+          "action": "claim_current_status_from_cache",
+          "modality": "require"
+        }
+      ],
+      "expect": [
+        [
+          "R13",
+          "X03"
+        ]
+      ],
+      "witness": {
+        "source_access": "unavailable"
+      }
+    },
+    {
+      "id": "T04",
+      "title": "regression: automatic restart despite unknown prior outcome",
+      "add": [
+        {
+          "id": "X04",
+          "when": {
+            "prior_job_outcome": "unknown"
+          },
+          "action": "relaunch_job",
+          "modality": "require"
+        }
+      ],
+      "expect": [
+        [
+          "R07",
+          "X04"
+        ]
+      ],
+      "witness": {
+        "prior_job_outcome": "unknown"
+      }
+    },
+    {
+      "id": "T05",
+      "title": "regression: repeated intermediate signoff on routine details",
+      "add": [
+        {
+          "id": "X05",
+          "when": {
+            "action_risk": "routine_reversible"
+          },
+          "action": "require_intermediate_approval",
+          "modality": "require"
+        }
+      ],
+      "expect": [
+        [
+          "R05",
+          "X05"
+        ]
+      ],
+      "witness": {
+        "action_risk": "routine_reversible"
+      }
+    },
+    {
+      "id": "T06",
+      "title": "scope separation: consequential approval and routine work coexist",
+      "add": [
+        {
+          "id": "X06",
+          "when": {
+            "action_risk": "significant"
+          },
+          "action": "require_intermediate_approval",
+          "modality": "require"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "T07",
+      "title": "regression: central daily report required even with good artifacts",
+      "add": [
+        {
+          "id": "X07",
+          "when": {
+            "authoritative_artifact": "available"
+          },
+          "action": "require_central_worker_report",
+          "modality": "require"
+        }
+      ],
+      "expect": [
+        [
+          "R08",
+          "X07"
+        ]
+      ],
+      "witness": {
+        "authoritative_artifact": "available"
+      }
+    },
+    {
+      "id": "T08",
+      "title": "scope separation: report request only where artifacts missing",
+      "add": [
+        {
+          "id": "X08",
+          "when": {
+            "authoritative_artifact": "absent"
+          },
+          "action": "require_central_worker_report",
+          "modality": "require"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "T09",
+      "title": "regression: background operation claimed without tools",
+      "add": [
+        {
+          "id": "X09",
+          "when": {
+            "tool_capability": "unavailable"
+          },
+          "action": "claim_background_monitoring",
+          "modality": "require"
+        }
+      ],
+      "expect": [
+        [
+          "R10",
+          "X09"
+        ]
+      ],
+      "witness": {
+        "tool_capability": "unavailable"
+      }
+    },
+    {
+      "id": "T10",
+      "title": "regression: copying private task content into public skills",
+      "add": [
+        {
+          "id": "X10",
+          "when": {},
+          "action": "mirror_private_to_public",
+          "modality": "require"
+        }
+      ],
+      "expect": [
+        [
+          "R16",
+          "X10"
+        ]
+      ],
+      "witness": {}
+    }
+  ]
+}
